@@ -1,19 +1,13 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 ## Loading and preprocessing the data
 
 First, we load and process the data for analysis.
 
 
-```{r loadAndPreprocess, echo = TRUE}
 
+```r
 data <- read.csv(unz("activity.zip","activity.csv"))
-
 ```
 
 
@@ -23,8 +17,8 @@ We can ignore the missing values in the dataset.
 We will make a histogram of the total number of steps taken each day.
 
 
-```{r histTotalSteps, echo = TRUE}
 
+```r
 nonNAdata <-subset(data, complete.cases(data)==TRUE)
 dataByDate <- split(nonNAdata, nonNAdata$date, drop=TRUE)
 dailySteps <- sapply(dataByDate, function(x) sum(x$steps))
@@ -33,16 +27,23 @@ abline(v=mean(dailySteps), lty=3, col="blue")
 text(mean(dailySteps),26,labels="Mean", pos = 4, col="blue")
 abline(v=median(dailySteps), lty=4, col="red")
 text(median(dailySteps),22,labels="Median", pos = 4, col="red")
-
 ```
+
+![](PA1_template_files/figure-html/histTotalSteps-1.png) 
 
 ##Calculate and report the mean and median total number of steps taken per day
 
 
 The mean and median are as follows:
 
-```{r summaryDailySteps, echo=TRUE}
+
+```r
 summary(dailySteps)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##      41    8841   10760   10770   13290   21190
 ```
 
 ## What is the average daily activity pattern?
@@ -50,33 +51,51 @@ summary(dailySteps)
 We will make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
 
-```{r avgDailyActivityPattern, echo = TRUE}
+
+```r
 dataByInterval <- split(nonNAdata,nonNAdata$interval, drop=TRUE)
 avgV <- sapply(dataByInterval, function(x) mean(x$steps))     
 plot(avgV, type="l",main="Five Minutes Interval", ylab="Avg Steps", xlab="Interval", col="blue")                          
 abline(v=which.max(avgV), lty=3, col="red")
 text(which.max(avgV),max(avgV),labels=paste("max = ",as.character(round(max(avgV)))), pos=2, col="red")
-
 ```
+
+![](PA1_template_files/figure-html/avgDailyActivityPattern-1.png) 
 
 ##Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
 To find out, we will get the interval by the name.
 
-```{r avgVNames, echo=TRUE}
+
+```r
 names(which.max(avgV))
+```
+
+```
+## [1] "835"
 ```
 
 The average number of step is
 
-```{r avgSteps, echo=TRUE}
+
+```r
 round(max(avgV))
+```
+
+```
+## [1] 206
 ```
 
 The index positon is 
 
-```{r indexPos, echo=TRUE}
+
+```r
 which.max(avgV)
+```
+
+```
+## 835 
+## 104
 ```
 
 
@@ -84,25 +103,30 @@ which.max(avgV)
 
 Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
 
-```{r noOfMissingValue,echo=TRUE}
+
+```r
 originalValue <- complete.cases(data)  
 
 nMissing <- length(originalValue[originalValue==FALSE]) 
-
 ```
 
 The number of missing values is:
 
-```{r echo=TRUE}
+
+```r
 nMissing
+```
+
+```
+## [1] 2304
 ```
 
 ## How does the new dataset with NAs filled in with data?
 
 We will make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. 
 
-```{r newHist, echo = TRUE}
 
+```r
 newData <- cbind(data,originalValue)                          
 splitByOrig<-split(newData,newData$originalValue, drop=TRUE)  
 
@@ -122,19 +146,34 @@ abline(v=mean(dailyStepsNew), lty=3, col="blue")
 text(mean(dailyStepsNew),26,labels="Mean", pos=4, col="blue") 
 abline(v=median(dailyStepsNew), lty=4, col="red")
 text(mean(dailyStepsNew),22,labels="Median", pos=4, col="red")
+```
 
+![](PA1_template_files/figure-html/newHist-1.png) 
+
+```r
 summary(dailySteps)
+```
 
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##      41    8841   10760   10770   13290   21190
+```
+
+```r
 summary(dailyStepsNew)
+```
 
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##      41    9819   10760   10770   12810   21190
 ```
 
 ## Is there a difference with using the original data and the new data that has NAs filled with non empty values?
 
 To compare if there is difference, we will create the two histogram side by side.
 
-```{r twoHistComp, echo=TRUE}
 
+```r
 par(mfrow=c(1,2))
 
 hist(dailySteps, main="Original Histogram", 
@@ -150,8 +189,9 @@ abline(v=mean(dailyStepsNew), lty=3, col="blue")
 text(mean(dailyStepsNew),26,labels="Mean", pos=4, col="blue") 
 abline(v=median(dailyStepsNew), lty=4, col="red")
 text(mean(dailyStepsNew),22,labels="Median", pos=4, col="red")
-
 ```
+
+![](PA1_template_files/figure-html/twoHistComp-1.png) 
 
 Observation:
 
@@ -163,8 +203,8 @@ However, from the graphs, the change is on the centre bar of values which is cor
 
 We will create a new factor variable in the dataset with two levels, weekday and weekend, indicating whether a given date is a weekday or weekend day.
 
-```{r testDiffBetweenWeekdayAndWeekend, echo = TRUE}
 
+```r
 newData$date <- as.Date(strptime(newData$date, format="%Y-%m-%d")) 
 newData$day <- weekdays(newData$date) 
 
@@ -176,13 +216,12 @@ for (i in 1:nrow(newData)) {
     newData[i,]$day<-"weekday"
   }
 }
-
 ```
 
 Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
 
-```{r plotForWeekdayAndWeekend, echo=TRUE}
 
+```r
 dataByDay <- aggregate(newData$steps ~ newData$interval + newData$day, newData, mean)
 names(dataByDay) <- c("interval", "day", "steps")
 
@@ -191,9 +230,9 @@ with(dataByDay, plot(steps ~ interval, type ="n", main="Weekday vs. Weekend"))
 with(dataByDay[dataByDay$day == "weekend",], lines(steps ~ interval, type="l", col="red" ))  
 with(dataByDay[dataByDay$day == "weekday",], lines(steps ~ interval, type="l", col="blue"))  
 legend("topleft", lty=c(1,1), legend = c("Weekend", "Weekday"), col = c("red", "blue"), seg.len=3)
-
-
 ```
+
+![](PA1_template_files/figure-html/plotForWeekdayAndWeekend-1.png) 
 
 Conclusion:
 
